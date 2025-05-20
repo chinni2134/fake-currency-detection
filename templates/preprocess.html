@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Preprocessing | AI FCD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        /* Force Orbitron font on all elements within this page */
+        * {
+            font-family: 'Orbitron', sans-serif !important;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0a0a1f;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+        .page-header {
+            width: 100%; padding: 20px 0; text-align: center;
+            background-color: rgba(14, 14, 14, 0.85);
+            border-bottom: 1px solid #00ffe730; margin-bottom: 30px;
+        }
+        .page-header h1 { margin: 0; font-size: 2.2em; color: #00ffe7; text-shadow: 0 0 8px #00ffe780; }
+        
+        .container { max-width: 1000px; margin: 20px auto; padding: 25px 30px;
+            background-color: rgba(26, 26, 46, 0.85); border-radius: 10px;
+            border: 1px solid #00ffe770; box-shadow: 0 0 20px rgba(0, 255, 231, 0.15);
+        }
+        h1, h2, h3, h4, h5, h6, p, span, div, label, button, input, select, textarea, a, li {
+            font-family: 'Orbitron', sans-serif !important;
+        }
+
+        h2 { color: #00ffe7; border-bottom: 1px solid #00ffe750; padding-bottom: 10px; margin-top: 30px; margin-bottom: 15px; font-size: 1.6em; }
+        h2:first-child { margin-top: 0; }
+
+        .initiate-section { margin-bottom: 20px; }
+
+        .btn, .btn-action { 
+            background-color: #00ffe7; color: #0e0e0e; padding: 10px 20px; 
+            border: none; border-radius: 5px; 
+            font-weight: bold; cursor:pointer; transition: background-color 0.3s, transform 0.2s;
+            text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px;
+            text-decoration: none; display: inline-block;
+        }
+        .btn:hover, .btn-action:hover { background-color: #00b8a3; transform: translateY(-2px); }
+        .btn-action { margin-top: 15px; }
+
+        .status-section { margin-top: 30px; }
+        .status-box { background-color: #0c0c1bcc; border:1px solid #00ffe730; padding:15px; border-radius:5px; margin-bottom:15px; }
+        .status-box strong { color: #00ffe7; }
+        .progress-bar-container { width:100%; background-color:#0e0e0e; border-radius:5px; overflow:hidden; margin-top:10px; border: 1px solid #00ffe730;}
+        .progress-bar { width:0%; height:20px; background-color:#00ffe7; text-align:center; line-height:20px; color:#0a0a1f; font-weight:bold; transition: width 0.5s ease-in-out; }
+        
+        .log-output { background-color:#0c0c1bcc; border:1px solid #00ffe730; padding:15px; border-radius:5px; max-height:300px; overflow-y:auto; margin-bottom:20px; font-family:"Consolas", "Monaco", monospace !important; font-size:0.85em; white-space:pre-wrap; color:#c0c0c0; }
+        .log-output p { margin:0 0 8px 0; border-bottom:1px dotted #00ffe720; padding-bottom:6px; line-height:1.5; font-family:"Consolas", "Monaco", monospace !important; }
+        .log-output p:last-child { border-bottom:none; margin-bottom:0; }
+        
+        .image-gallery { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:15px; margin-top:20px; }
+        .image-gallery .img-container { border:1px solid #00ffe750; padding:10px; background-color:rgba(0,0,0,0.3); border-radius:8px; text-align:center; }
+        .image-gallery .img-container h3 { color:#00ffe7cc; font-size:1em; margin:0 0 10px 0; }
+        .image-gallery img { max-width:100%; height:auto; max-height:180px; object-fit:contain; display:block; margin-bottom:5px; border-radius:4px; background-color:#00000040; }
+        
+        .back-link-container { text-align: center; margin-top: 30px; padding-bottom: 20px; }
+        .btn-secondary { background-color:transparent; color:#00ffe7; border:1px solid #00ffe7; padding:10px 20px; text-decoration:none; border-radius:5px; font-size:1em; transition:background-color .3s, color .3s, box-shadow .3s; box-shadow:0 0 5px #00ffe750; }
+        .btn-secondary:hover { background-color:#00ffe7; color:#0a0a1f; box-shadow:0 0 15px #00ffe7; }
+
+        .animated-message-area { 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1010; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .animated-message {
+            padding: 10px 20px; border-radius: 5px; color: #fff;
+            font-size: 0.9em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0; animation: fadeInOut 3.5s ease-in-out forwards;
+        }
+        .animated-message.success { background-color: #00b398; border:1px solid #00ffe7; }
+        .animated-message.info { background-color: #1a1a2e; border:1px solid #00ffe7; color:#00ffe7; }
+        .animated-message.danger { background-color: #d9534f; border:1px solid #d43f3a; }
+        .animated-message.warning { background-color: #f0ad4e; border: 1px solid #eea236;}
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); } 15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>Interactive Dataset Preprocessing</h1>
+    </div>
+
+    <div id="animated-message-area-preprocess" class="animated-message-area"></div>
+
+    <div class="container">
+        <div class="initiate-section">
+            <h2>1. Initiate Preprocessing</h2>
+            <p>The system will use the pre-configured dataset already on the server. Click the button below to create a new preprocessing task entry.</p>
+            <button id="initiateNewPreprocessingBtn" class="btn">Initiate New Preprocessing Task</button>
+        </div>
+
+        {% if task_id and current_task_data %}
+        <div class="status-section">
+            <h2>2. Preprocessing Status (Task ID: {{ task_id }})</h2>
+            <div class="status-box">
+                <strong>Current Status:</strong> <span id="current_status">{{ current_task_data.status }}</span>
+                <div class="progress-bar-container">
+                    <div id="progress_bar" class="progress-bar" style="width: {{ current_task_data.progress }}%;">{{ current_task_data.progress }}%</div>
+                </div>
+            </div>
+
+            {% if not current_task_data.processing_started and not current_task_data.completed %}
+                <button id="startProcessingActualBtn" class="btn btn-action">Start Preprocessing Task</button>
+            {% elif current_task_data.processing_started and not current_task_data.completed %}
+                <p><i>Processing is in progress. Please wait for updates... (Page auto-updates)</i></p>
+            {% elif current_task_data.completed %}
+                <p style="padding: 10px; border-radius: 5px; background-color: {% if current_task_data.error %}#5c1a1a{% else %}#1a5c3a{% endif %}; border: 1px solid {% if current_task_data.error %}#ff6b6b{% else %}#00b398{% endif %};">
+                    <strong>Task Completed!</strong> 
+                    {% if current_task_data.error %} <span style="color: #ffdfdf;">An error occurred: {{ current_task_data.error_message | default('Check server logs.') }}</span> {% endif %}
+                </p>
+            {% elif not current_task_data.dataset_path_to_process and not current_task_data.completed %} 
+                 <p style="color: #ffadad;">Dataset path not ready. Ensure system is configured correctly.</p>
+            {% endif %}
+
+            <h3>Logs:</h3>
+            <div id="log_output_area" class="log-output">
+                {% for log in current_task_data.logs %}
+                    <p>{{ log }}</p>
+                {% else %}
+                    <p>No logs yet for this task. Initiate a task, then click "Start Preprocessing Task" if available.</p>
+                {% endfor %}
+            </div>
+
+            <h3>Sample Processed Images:</h3>
+            <div id="image_gallery_area" class="image-gallery">
+                {% if current_task_data.images and current_task_data.images is mapping and current_task_data.images|length > 0 %}
+                    {% for title, image_path_from_backend in current_task_data.images.items() %}
+                        {% if image_path_from_backend %} 
+                            <div class="img-container">
+                                <h3>{{ title }}</h3>
+                                <img src="{{ url_for('static', filename=image_path_from_backend.replace('static/', '', 1)) }}" alt="{{ title }}">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% elif current_task_data.completed %}
+                    <p>No sample images were generated or reported by this task.</p>
+                {% else %}
+                    <p>Sample images will appear here once processing generates them.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% elif task_id and not current_task_data %}
+            <p style="color: #ff6b6b;">Error: Could not retrieve status for Task ID {{ task_id }}. It might have expired or is invalid. Please try initiating a new task.</p>
+        {% else %}
+            <p>Click "Initiate New Preprocessing Task" above to begin working with the pre-configured dataset.</p>
+        {% endif %}
+        
+        <div class="back-link-container">
+            <a href="{{ url_for('home') }}" class="btn-secondary">Back to Main Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const animatedMessageAreaPreprocess = document.getElementById('animated-message-area-preprocess');
+
+        function displayPreprocessAnimatedMessage(message, type = 'info', duration = 4000) {
+            if (!animatedMessageAreaPreprocess) return;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `animated-message ${type}`;
+            messageDiv.innerHTML = message; 
+            animatedMessageAreaPreprocess.appendChild(messageDiv);
+            setTimeout(() => { messageDiv.remove(); }, duration);
+        }
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    setTimeout(() => {
+                        displayPreprocessAnimatedMessage({{ message|tojson }}, "{{ category }}");
+                    }, 200 * loop.index);
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        let currentTaskId = "{{ task_id if task_id else '' }}";
+        let pollingInterval;
+
+        function updateStatusDisplay(data) {
+            const statusEl = document.getElementById('current_status');
+            const progressBarEl = document.getElementById('progress_bar');
+            const logOutputAreaEl = document.getElementById('log_output_area');
+            const imageGalleryAreaEl = document.getElementById('image_gallery_area');
+            const startButton = document.getElementById('startProcessingActualBtn');
+
+            if (statusEl) statusEl.textContent = data.status || 'Awaiting update...';
+            if (progressBarEl) {
+                const progress = data.progress || 0;
+                progressBarEl.style.width = progress + '%';
+                progressBarEl.textContent = progress + '%';
+            }
+
+            if (logOutputAreaEl && data.logs) {
+                logOutputAreaEl.innerHTML = ''; 
+                data.logs.forEach(logMsg => {
+                    const p = document.createElement('p');
+                    p.textContent = logMsg;
+                    logOutputAreaEl.appendChild(p);
+                });
+                if (logOutputAreaEl.children.length > 0) { // Scroll only if there are logs
+                   logOutputAreaEl.scrollTop = logOutputAreaEl.scrollHeight;
+                }
+            }
+
+            if (imageGalleryAreaEl && data.images) {
+                imageGalleryAreaEl.innerHTML = '';
+                if (typeof data.images === 'object' && data.images !== null && Object.keys(data.images).length > 0) {
+                    Object.entries(data.images).forEach(([title, image_path_val]) => {
+                        if (typeof image_path_val === 'string' && image_path_val) {
+                            const imgContainer = document.createElement('div');
+                            imgContainer.className = 'img-container';
+                            const h3 = document.createElement('h3');
+                            h3.textContent = title;
+                            const img = document.createElement('img');
+                            // Construct the URL using url_for to ensure correctness with Flask's static handling
+                            // The image_path_val from backend should be relative to the 'static' folder.
+                            // E.g., if image is in static/processed_images/sample.jpg, image_path_val should be 'processed_images/sample.jpg'
+                            img.src = "{{ request.script_root }}/static/" + image_path_val.replace(/^static\//i, '');
+                            img.alt = title;
+                            imgContainer.appendChild(h3);
+                            imgContainer.appendChild(img);
+                            imageGalleryAreaEl.appendChild(imgContainer);
+                        }
+                    });
+                } else if (data.completed && (!data.images || Object.keys(data.images).length === 0) ) {
+                    imageGalleryAreaEl.innerHTML = '<p>No sample images were generated or reported by this task.</p>';
+                }
+            }
+            
+            if (startButton){
+                if (data.completed || data.processing_started) {
+                     startButton.style.display = 'none';
+                } else if (currentTaskId && !data.processing_started && !data.completed) { 
+                     startButton.style.display = 'inline-block'; 
+                     startButton.disabled = false;
+                     startButton.textContent = 'Start Preprocessing Task';
+                } else {
+                    startButton.style.display = 'none'; 
+                }
+            }
+        }
+
+        async function pollStatus(taskId) {
+            if (!taskId) return;
+            try {
+                const response = await fetch(`{{ url_for('get_preprocessing_status_route', task_id='TASK_ID_PLACEHOLDER') }}`.replace('TASK_ID_PLACEHOLDER', taskId));
+                if (!response.ok) {
+                    console.error("Error fetching status:", response.status, response.statusText);
+                    if (response.status === 404 && pollingInterval) {
+                        displayPreprocessAnimatedMessage('Task ' + taskId + ' not found or expired. Stopping updates.', 'danger');
+                        clearInterval(pollingInterval);
+                    }
+                    return;
+                }
+                const data = await response.json();
+                if (data.status === 'error' && data.message && data.message.toLowerCase().includes('task id not found')){ 
+                     displayPreprocessAnimatedMessage('Task ' + taskId + ' no longer valid. Stopping updates.', 'danger');
+                     if (pollingInterval) clearInterval(pollingInterval);
+                     // Optionally redirect or clear task view
+                     // window.location.href = "{{ url_for('interactive_preprocessing_page') }}";
+                     return;
+                }
+                updateStatusDisplay(data);
+
+                if (data.completed) {
+                    if (pollingInterval) clearInterval(pollingInterval);
+                    displayPreprocessAnimatedMessage('Preprocessing task finished!', data.error ? 'danger' : 'success', 5000);
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
+                if (pollingInterval) clearInterval(pollingInterval); 
+                displayPreprocessAnimatedMessage('Error fetching status updates. Polling stopped.', 'danger');
+            }
+        }
+        
+        const initiateBtn = document.getElementById('initiateNewPreprocessingBtn');
+        if (initiateBtn) {
+            initiateBtn.addEventListener('click', async () => {
+                initiateBtn.disabled = true;
+                initiateBtn.textContent = 'Initiating...';
+                try {
+                    const response = await fetch("{{ url_for('interactive_preprocessing_page') }}", { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, // Good practice to specify content type
+                        body: JSON.stringify({ action: 'initiate_default_dataset' }) // Sending an action
+                    });
+                    const data = await response.json();
+
+                    if (response.ok && data.task_id) {
+                        displayPreprocessAnimatedMessage(data.message || 'New preprocessing task initiated. Task ID: ' + data.task_id, 'success');
+                        // Reload the page with the new task_id in the URL to show the status section.
+                        window.location.href = `{{ url_for('interactive_preprocessing_page') }}?task_id=${data.task_id}`;
+                    } else {
+                        displayPreprocessAnimatedMessage(data.message || 'Failed to initiate task. Check server logs.', 'danger');
+                        initiateBtn.disabled = false;
+                        initiateBtn.textContent = 'Initiate New Preprocessing Task';
+                    }
+                } catch (error) {
+                    console.error('Error initiating task:', error);
+                    displayPreprocessAnimatedMessage('Error initiating task: ' + error.toString(), 'danger');
+                    initiateBtn.disabled = false;
+                    initiateBtn.textContent = 'Initiate New Preprocessing Task';
+                }
+            });
+        }
+
+        const startActualProcessingBtn = document.getElementById('startProcessingActualBtn');
+        if (startActualProcessingBtn && currentTaskId) {
+            startActualProcessingBtn.addEventListener('click', async () => {
+                startActualProcessingBtn.disabled = true;
+                startActualProcessingBtn.textContent = 'Starting...';
+                try {
+                    const response = await fetch("{{ url_for('start_processing_task_route', task_id=currentTaskId) }}", {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.status === 'success') {
+                        displayPreprocessAnimatedMessage(data.message || 'Processing started.', 'info');
+                        startActualProcessingBtn.style.display = 'none'; 
+                        if (pollingInterval) clearInterval(pollingInterval); 
+                        pollStatus(currentTaskId); 
+                        pollingInterval = setInterval(() => pollStatus(currentTaskId), 3000); 
+                    } else {
+                        displayPreprocessAnimatedMessage(data.message || 'Failed to start task.', 'danger');
+                        startActualProcessingBtn.disabled = false;
+                        startActualProcessingBtn.textContent = 'Start Preprocessing Task';
+                    }
+                } catch (error) {
+                    displayPreprocessAnimatedMessage('Error starting task: ' + error.toString(), 'danger');
+                    startActualProcessingBtn.disabled = false;
+                    startActualProcessingBtn.textContent = 'Start Preprocessing Task';
+                }
+            });
+        }
+
+        {% if task_id and current_task_data %}
+            updateStatusDisplay({{ current_task_data|tojson }}); 
+            {% if current_task_data.processing_started and not current_task_data.completed %}
+                if (currentTaskId) { 
+                    console.log("Task {{task_id}} previously started, resuming polling.");
+                    if (pollingInterval) clearInterval(pollingInterval);
+                    pollStatus(currentTaskId); 
+                    pollingInterval = setInterval(() => pollStatus(currentTaskId), 3000); 
+                }
+            {% endif %}
+        {% else %}
+            // If there's no task_id in the URL, ensure any stray 'start' button is hidden
+            if(startActualProcessingBtn) {
+                startActualProcessingBtn.style.display = 'none';
+            }
+        {% endif %}
+    </script>
+</body>
+</html>

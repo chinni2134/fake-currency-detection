@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Powered | Fake Currency Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        /* ... (all your existing styles from index.html, including for .modal and .animated-message-area) ... */
+        /* Modal Styling (for CNN Modal) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #1a1a2e;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #00ffe7;
+            width: 60%;
+            max-width: 700px;
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 5px 15px rgba(0, 255, 231, 0.2);
+        }
+
+        .close-button {
+            color: #00ffe7;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            color: #00ffe7;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .modal-content ul li {
+            background-color: rgba(0, 255, 231, 0.05);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 3px solid #00ffe7;
+            font-size: 0.95em;
+        }
+
+        /* Animated Message Area Styling */
+        .animated-message-area {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1005;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: auto;
+            max-width: 90%;
+        }
+
+        .animated-message {
+            padding: 12px 25px;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95em;
+            text-align: center;
+            box-shadow: 0 4h4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeInOut 3.5s ease-in-out forwards;
+            min-width: 250px;
+        }
+
+        .animated-message.success {
+            background-color: #00b398;
+            border: 1px solid #00ffe7;
+        }
+
+        .animated-message.info {
+            background-color: #1a1a2e;
+            border: 1px solid #00ffe7;
+            color: #00ffe7;
+        }
+        .animated-message.info a {
+            color: #ff6b6b;
+            text-decoration: underline;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .animated-message.warning {
+            background-color: #f0ad4e;
+            border: 1px solid #eea236;
+        }
+
+        .animated-message.danger {
+            background-color: #d9534f;
+            border: 1px solid #d43f3a;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="galaxy-loader">
+        <div class="spiral"></div>
+        <div class="stars"></div>
+        <div class="loading-message">Entering the AI Verse</div>
+    </div>
+
+    <svg class="svg-background" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0e0e0e;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <pattern id="gridPattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#00ffe715" stroke-width="0.5"/>
+          </pattern>
+          <pattern id="circuitPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+            <path d="M10,10 L50,10 L50,50 L90,50 L90,10 L130,10 L130,90 L170,90 L170,130 L130,130 L130,170 L90,170 L90,130 L50,130 L50,170 L10,170 Z" fill="none" stroke="#00ffe730" stroke-width="1.5"/>
+            <circle cx="10" cy="10" r="3" fill="#00ffe750"/> <circle cx="50" cy="50" r="3" fill="#00ffe750"/> <circle cx="90" cy="10" r="3" fill="#00ffe750"/> <circle cx="130" cy="90" r="3" fill="#00ffe750"/> <circle cx="170" cy="130" r="3" fill="#00ffe750"/> <circle cx="130" cy="170" r="3" fill="#00ffe750"/> <circle cx="50" cy="170" r="3" fill="#00ffe750"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+        <rect width="100%" height="100%" fill="url(#gridPattern)" opacity="0.5"/>
+        <rect width="100%" height="100%" fill="url(#circuitPattern)" opacity="0.6"/>
+        <g filter="url(#glow)" opacity="0.7">
+           <line x1="0" y1="100" x2="1000" y2="100" stroke="#00ffe7" stroke-width="1" opacity="0.2"/> <line x1="0" y1="300" x2="1000" y2="300" stroke="#00ffe7" stroke-width="1" opacity="0.3"/> <line x1="0" y1="500" x2="1000" y2="500" stroke="#00ffe7" stroke-width="1" opacity="0.2"/>
+          <line x1="200" y1="0" x2="200" y2="600" stroke="#00ffe7" stroke-width="1" opacity="0.2"/> <line x1="600" y1="0" x2="600" y2="600" stroke="#00ffe7" stroke-width="1" opacity="0.2"/> <line x1="800" y1="0" x2="800" y2="600" stroke="#00ffe7" stroke-width="1" opacity="0.3"/>
+          <circle cx="200" cy="100" r="5" fill="#00ffe7" opacity="0.8"/> <circle cx="600" cy="300" r="8" fill="#00ffe7" opacity="0.9"/> <circle cx="800" cy="500" r="6" fill="#00ffe7" opacity="0.8"/>
+          <polygon points="400,150 430,120 470,120 500,150 470,180 430,180" fill="none" stroke="#00ffe7" stroke-width="2" opacity="0.7"/> <polygon points="700,400 730,370 770,370 800,400 770,430 730,430" fill="none" stroke="#00ffe7" stroke-width="2" opacity="0.6"/>
+          <path d="M50,350 L150,350 L150,250 L250,250" fill="none" stroke="#00ffe7" stroke-width="3" opacity="0.7"/> <path d="M750,200 L800,200 L800,150 L850,150" fill="none" stroke="#00ffe7" stroke-width="3" opacity="0.6"/>
+          <circle cx="900" cy="100" r="30" fill="none" stroke="#00ffe7" stroke-width="2" opacity="0.5"/> <circle cx="900" cy="100" r="20" fill="none" stroke="#00ffe7" stroke-width="1" opacity="0.7"/> <circle cx="900" cy="100" r="10" fill="#00ffe7" opacity="0.4"/>
+          <circle cx="100" cy="500" r="40" fill="none" stroke="#00ffe7" stroke-width="2" opacity="0.5"/> <circle cx="100" cy="500" r="25" fill="none" stroke="#00ffe7" stroke-width="1" opacity="0.7"/> <circle cx="100" cy="500" r="10" fill="#00ffe7" opacity="0.4"/>
+        </g>
+        <g opacity="0.15">
+            <text x="50" y="220" font-family="monospace" font-size="10" fill="#00ffe7">01001010011001010110111001100111</text>
+          <text x="350" y="450" font-family="monospace" font-size="10" fill="#00ffe7">1011010100101010100100110101010</text>
+          <text x="700" y="150" font-family="monospace" font-size="10" fill="#00ffe7">0110100101010111001010001011010</text>
+          <text x="500" y="550" font-family="monospace" font-size="10" fill="#00ffe7">1101001010100101010011001011101</text>
+           <text x="150" y="50" font-family="monospace" font-size="10" fill="#00ffe7">100101011010010100101011010101</text>
+           <text x="850" y="320" font-family="monospace" font-size="10" fill="#00ffe7">0110101010111010101001011010110</text>
+        </g>
+    </svg>
+
+    <nav id="main-nav">
+        <ul>
+            <li><a href="{{ url_for('home') }}#home">Home</a></li>
+            <li><a href="{{ url_for('home') }}#detect">Detect</a></li>
+            {# Removed the link to the training dashboard page #}
+            <li><a href="#" id="cnnModelBtn">CNN Model</a></li>
+            <li><a href="{{ url_for('home') }}#how-it-works">How It Works</a></li>
+            <li><a href="{{ url_for('home') }}#accuracy">Accuracy</a></li>
+            <li><a href="{{ url_for('home') }}#contact">Contact</a></li>
+            {% if not username and request.endpoint != 'login' %}
+                <li style="margin-left: auto;"><a href="{{ url_for('login') }}">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div id="animated-message-area" class="animated-message-area">
+    </div>
+
+    <main>
+        <section id="home" class="parallax">
+            <h1>AI - POWERED</h1>
+            <div class="subtitle">AI-Powered Fake Currency Detection</div>
+            <a href="#detect" class="btn fade-in">Start Detection / Training</a>
+        </section>
+
+        <section id="detect" class="content">
+            <h2 class="fade-in">Currency Detection</h2>
+            <p class="fade-in">Upload an image of currency to verify its authenticity.</p>
+             <div class="currency-selection fade-in">
+                 <p>Select currency type (for detection context, model handles specifics):</p>
+                 <div class="currency-options">
+                     <div class="currency-option active" data-currency="inr">INR</div>
+                     <div class="currency-option" data-currency="eur">EUR</div>
+                     <div class="currency-option" data-currency="usd">USD</div>
+                     <div class="currency-option" data-currency="jpy">JPY</div>
+                     <div class="currency-option" data-currency="cad">CAD</div>
+                 </div>
+             </div>
+             <div class="file-input-container fade-in">
+                 <label class="file-input-label"> Upload Currency Image <input type="file" id="currency-upload" accept="image/*"> </label>
+                 <div id="file-name" class="file-name">No file selected</div>
+             </div>
+             <div class="scanner-container fade-in" id="scanner-container">
+                 <img id="preview-image" class="preview-image" style="display: none;" alt="Currency Preview">
+                 <div class="scan-line"></div>
+             </div>
+             <div style="text-align: center; margin-bottom: 20px;">
+                <button id="analyze-btn" class="btn fade-in">Analyze Currency</button>
+                </div>
+
+             <div id="result-container" class="result-container" style="display: none;">
+                 <div class="result-header">Analysis Results</div>
+                 <div id="result-authentic" class="result-authentic" style="display: none;"> <span class="icon">✔️</span> AUTHENTIC CURRENCY </div>
+                 <div id="result-counterfeit" class="result-counterfeit" style="display: none;"> <span class="icon">❌</span> COUNTERFEIT DETECTED </div>
+                 <div class="confidence"> Confidence: <span id="confidence-value">--%</span> </div>
+                 <div class="features-detected">
+                     <h4>Security Features Checked (Illustrative):</h4>
+                     <div class="features-list">
+                         <div class="feature-item">Watermark</div> <div class="feature-item">Security Thread</div> <div class="feature-item">Micro-Printing</div> <div class="feature-item">UV Response</div> <div class="feature-item">Holographic Elements</div> <div class="feature-item">Latent Image</div> <div class="feature-item">Intaglio Printing</div>
+                     </div>
+                 </div>
+                 <div class="cnn-visualization">
+                     <div class="cnn-layer"><h4>Input</h4><div class="cnn-icon">Image</div></div>
+                     <div class="cnn-layer"><h4>Conv1</h4><div class="cnn-icon">Feature Maps</div></div>
+                     <div class="cnn-layer"><h4>Pool1</h4><div class="cnn-icon">Downsample</div></div>
+                     <div class="cnn-layer"><h4>Conv2</h4><div class="cnn-icon">More Features</div></div>
+                     <div class="cnn-layer"><h4>Dense</h4><div class="cnn-icon">Combine</div></div>
+                     <div class="cnn-layer"><h4>Output</h4><div class="cnn-icon">Real/Fake</div></div>
+                 </div>
+             </div>
+             <div id="train-cnn-output" class="result-container" style="display: none; margin-top: 20px;">
+             </div>
+        </section>
+
+        <section id="how-it-works" class="content">
+            <h2 class="fade-in">How It Works</h2>
+            <p class="fade-in">Our advanced Convolutional Neural Network (CNN) technology analyzes intricate details to detect counterfeit currency with high precision.</p>
+             <div class="process-steps">
+                <div class="step"><div class="step-number">1</div><h3>Image Capture</h3><p>Upload clear image.</p></div>
+                <div class="step"><div class="step-number">2</div><h3>Preprocessing</h3><p>Normalization & enhancement.</p></div>
+                <div class="step"><div class="step-number">3</div><h3>Feature Extraction</h3><p>Deep CNN analysis.</p></div>
+                <div class="step"><div class="step-number">4</div><h3>Classification</h3><p>Authentic or counterfeit.</p></div>
+             </div>
+        </section>
+
+        <section id="accuracy" class="content">
+            <h2 class="fade-in">Detection Performance</h2>
+            <p class="fade-in">Model performance metrics (illustrative examples based on typical runs).</p>
+            <div class="accuracy-stats">
+                 <div class="stat-card fade-in">
+                    <div class="stat-value"> 90-98%</div> <div class="stat-label">Overall Accuracy</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-value"> 92%</div> <div class="stat-label">Precision (Weighted)</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-value"> 91%</div> <div class="stat-label">Recall (Weighted)</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-value">91.5%</div> <div class="stat-label">F1 Score (Weighted)</div>
+                </div>
+            </div>
+            <div class="data-view-triggers fade-in">
+                 <button id="view-matrix-btn" class="btn data-btn">View Confusion Matrix</button>
+            </div>
+            <p style="margin-top: 30px; font-size: 0.9em; color: #aaa;" class="fade-in">Actual metrics depend on the specific trained model and dataset.</p>
+        </section>
+
+        <section id="contact" class="content">
+             <h2 class="fade-in">Contact Us</h2>
+              <p class="fade-in">Have questions? Reach out to our team.</p>
+              <a href="mailto:chinnik8900@gmail.com" class="btn fade-in">Email Us</a>
+        </section>
+    </main>
+
+    <section id="workflow-link-section-bottom" class="content" style="text-align: center; padding: 20px 0;">
+        <a href="{{ url_for('workflow_page') }}" class="btn data-btn">View Workflow Visualization</a>
+    </section>
+
+    <footer>
+         <p>&copy; <script>document.write(new Date().getFullYear())</script> AI-Powered Currency Detection. All rights reserved.</p>
+         <div class="footer-links">
+            <a href="#">Privacy Policy</a> | <a href="#">Terms</a> | <a href="#">Docs</a>
+        </div>
+    </footer>
+
+    <div id="cnnModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeCnnModal">&times;</span>
+            <h2>About Convolutional Neural Networks (CNNs)</h2>
+            <ul>
+                <li>CNNs are a class of deep learning models most commonly applied to analyzing visual imagery.</li>
+                <li>They are inspired by the biological processes in the animal visual cortex.</li>
+                <li>Key components include convolutional layers, pooling layers, and fully connected layers.</li>
+                <li>Convolutional layers apply filters to input images to create feature maps, identifying patterns like edges or textures.</li>
+                <li>Pooling layers reduce the dimensionality of feature maps, making the model more efficient and robust to variations.</li>
+                <li>Fully connected layers perform classification based on the features extracted by preceding layers.</li>
+                <li>CNNs automatically learn a hierarchy of features, from simple (edges) to complex (objects).</li>
+                <li>They are widely used for image classification, object detection, image segmentation, and more.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="data-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content holographic">
+            <button id="close-modal-btn" class="close-modal">&times;</button>
+            <h3 id="modal-title" class="modal-title">Data Visualization</h3>
+            <div class="modal-body">
+                <div id="matrix-container" style="display: none;">
+                    <p class="modal-description">Confusion Matrix: Illustrative example.</p>
+                     <div style="text-align:center; margin-top: 20px;">
+                         <img src="{{ url_for('static', filename='images/matrix.png') }}" alt="Confusion Matrix" style="max-width: 90%; height: auto; border: 1px solid rgba(0, 255, 231, 0.3); background-color: rgba(255,255,255,0.05);">
+                         <p style="font-size: 0.8em; color: #a0c0d0; margin-top: 10px;"></p>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('currency-upload');
+            const fileNameDisplay = document.getElementById('file-name');
+            const previewImage = document.getElementById('preview-image');
+            const resultContainer = document.getElementById('result-container');
+            const resultAuthentic = document.getElementById('result-authentic');
+            const resultCounterfeit = document.getElementById('result-counterfeit');
+            const confidenceValue = document.getElementById('confidence-value');
+            const scannerContainer = document.getElementById('scanner-container');
+            const currencyOptions = document.querySelectorAll('.currency-option');
+            const nav = document.getElementById('main-nav');
+            const analyzeBtn = document.getElementById('analyze-btn');
+
+            const dataDisplayModal = document.getElementById('data-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const viewMatrixBtn = document.getElementById('view-matrix-btn');
+            const matrixContainer = document.getElementById('matrix-container');
+            const modalTitle = document.getElementById('modal-title');
+
+            const cnnModal = document.getElementById('cnnModal');
+            const cnnModelBtn = document.getElementById('cnnModelBtn');
+            const closeCnnModalBtn = document.getElementById('closeCnnModal');
+
+            const animatedMessageArea = document.getElementById('animated-message-area');
+
+            function displayAnimatedMessage(message, type = 'info', duration = 3500) {
+                if (!animatedMessageArea) {
+                    console.warn("Animated message area not found!");
+                    return;
+                }
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `animated-message ${type}`;
+                messageDiv.innerHTML = message;
+                animatedMessageArea.appendChild(messageDiv);
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, duration);
+            }
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        setTimeout(() => {
+                           displayAnimatedMessage({{ message|tojson }}, "{{ category }}");
+                        }, 200 * loop.index);
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if username %}
+                const welcomeMessageHTML = `Welcome, {{ username }}! <a href="{{ url_for('logout') }}">Logout</a>`;
+                setTimeout(() => {
+                    displayAnimatedMessage(welcomeMessageHTML, 'info', 4500);
+                }, 500);
+            {% endif %}
+
+            if (cnnModelBtn) {
+                cnnModelBtn.onclick = function(event) {
+                    event.preventDefault();
+                    if(cnnModal) cnnModal.style.display = "block";
+                }
+            }
+            if (closeCnnModalBtn) {
+                closeCnnModalBtn.onclick = function() {
+                    if(cnnModal) cnnModal.style.display = "none";
+                }
+            }
+
+            window.onclick = function(event) {
+                if (event.target == cnnModal) {
+                    if(cnnModal) cnnModal.style.display = "none";
+                }
+                if (event.target == dataDisplayModal) {
+                    closeDataModal();
+                }
+            }
+
+            if (fileInput && fileNameDisplay && previewImage && scannerContainer) {
+                 fileInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        fileNameDisplay.textContent = file.name;
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            previewImage.src = event.target.result;
+                            previewImage.style.display = 'block';
+                            scannerContainer.style.borderColor = '#00ffe7';
+                            if(resultContainer) resultContainer.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        fileNameDisplay.textContent = 'No file selected';
+                        previewImage.src = '';
+                        previewImage.style.display = 'none';
+                        if(resultContainer) resultContainer.style.display = 'none';
+                    }
+                });
+            }
+
+            if (analyzeBtn && fileInput) {
+                analyzeBtn.addEventListener('click', async function() {
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        analyzeBtn.disabled = true;
+                        analyzeBtn.textContent = 'Analyzing...';
+                        if(scannerContainer) scannerContainer.style.borderColor = '#f0ad4e';
+                        if(resultContainer) resultContainer.style.display = 'none';
+
+                        try {
+                            const response = await fetch("{{ url_for('predict_currency_route') }}", {
+                                method: 'POST',
+                                body: formData,
+                            });
+                            const data = await response.json();
+                            console.log("Backend Response Data:", JSON.stringify(data, null, 2));
+
+                            if (data.status === 'error' || !response.ok) {
+                                const errorMsg = data.prediction || data.error || `Analysis failed: Server error ${response.status}`;
+                                console.error("Analysis error:", errorMsg);
+                                displayAnimatedMessage(errorMsg, 'danger');
+                                if(resultAuthentic) resultAuthentic.style.display = 'none';
+                                if(resultCounterfeit) {
+                                    resultCounterfeit.innerHTML = `<span class="icon">⚠️</span> ${errorMsg}`;
+                                    resultCounterfeit.style.display = 'block';
+                                }
+                                if(confidenceValue) confidenceValue.textContent = '--%';
+                                if(scannerContainer) scannerContainer.style.borderColor = '#ff4545';
+                                return;
+                            }
+
+                            if(resultContainer) resultContainer.style.display = 'block';
+                            let isAuthentic = true; // Assume authentic unless marked fake
+                            let displayMessage = data.prediction; // Start with the prediction from the backend
+
+                            if (data.prediction) {
+                                const predictionLower = data.prediction.toLowerCase();
+
+                                // --- START: Modified check for 'Fake' prediction ---
+                                // Display custom message if the backend explicitly returns "Fake"
+                                if (predictionLower === "fake") {
+                                    displayMessage = "the currency pattern is not matched with the strings pattern and counterfeit detected";
+                                    isAuthentic = false; // It's explicitly marked fake
+                                }
+                                // Handle other potential fake predictions from model output if they aren't just "Fake"
+                                else if (predictionLower.includes("fake") || predictionLower.includes("counterfeit") ||
+                                         predictionLower.includes("distorted") || predictionLower.includes("low quality") ||
+                                         predictionLower.includes("blurry")) {
+                                     isAuthentic = false;
+                                     // Keep the original prediction text from backend if it's not just "Fake"
+                                     displayMessage = data.prediction;
+                                }
+                                // --- END: Modified check ---
+                                 else if (predictionLower.includes("real") || predictionLower === "authentic") {
+                                    isAuthentic = true;
+                                    displayMessage = "AUTHENTIC CURRENCY"; // Standardize authentic message
+                                }
+                                else {
+                                    isAuthentic = false; // Anything not explicitly real/authentic is suspicious
+                                    console.warn("Prediction string unclear, defaulting to suspicious:", data.prediction);
+                                    displayMessage = data.prediction || 'SUSPICIOUS CURRENCY';
+                                }
+                            } else {
+                                displayAnimatedMessage('Received an unclear prediction result.', 'warning');
+                                isAuthentic = false;
+                                displayMessage = 'SUSPICIOUS CURRENCY'; // Fallback message
+                            }
+
+
+                            if (isAuthentic) {
+                                if(resultAuthentic) {
+                                     resultAuthentic.innerHTML = `<span class="icon">✔️</span> ${displayMessage}`;
+                                     resultAuthentic.style.display = 'block';
+                                }
+                                if(resultCounterfeit) resultCounterfeit.style.display = 'none';
+                                if(scannerContainer) scannerContainer.style.borderColor = '#00ff95';
+                            } else {
+                                if(resultAuthentic) resultAuthentic.style.display = 'none';
+                                if(resultCounterfeit) {
+                                    // Use the determined displayMessage
+                                    resultCounterfeit.innerHTML = `<span class="icon">❌</span> ${displayMessage}`;
+                                    resultCounterfeit.style.display = 'block';
+                                }
+                                if(scannerContainer) scannerContainer.style.borderColor = '#ff4545';
+                            }
+                            if(confidenceValue) {
+                                confidenceValue.textContent = data.confidence !== undefined ? parseFloat(data.confidence).toFixed(1) + '%' : '--%';
+                            }
+                            if (resultContainer) {
+                                const navHeight = nav ? nav.offsetHeight : 0;
+                                const elementPosition = resultContainer.getBoundingClientRect().top;
+                                const offsetPosition = elementPosition + window.pageYOffset - navHeight - 20;
+                                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                            }
+                        } catch (error) {
+                            console.error('Critical error during analysis fetch/processing:', error);
+                            displayAnimatedMessage('Analysis failed (network/script error). Please try again.', 'danger');
+                             if(scannerContainer) scannerContainer.style.borderColor = '#ff4545'; // Indicate failure visually
+                        } finally {
+                            analyzeBtn.disabled = false;
+                            analyzeBtn.textContent = 'Analyze Currency';
+                        }
+                    } else {
+                        displayAnimatedMessage('Please upload an image first!', 'warning');
+                        if(fileNameDisplay) fileNameDisplay.textContent = 'Please upload an image first!';
+                        if(scannerContainer) scannerContainer.style.borderColor = '#ff4545';
+                    }
+                });
+            }
+
+
+            if (currencyOptions) {
+                currencyOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        currencyOptions.forEach(opt => opt.classList.remove('active'));
+                        this.classList.add('active');
+                        if(resultContainer) resultContainer.style.display = 'none';
+                        if(previewImage) { previewImage.src = ''; previewImage.style.display = 'none'; }
+                        if(fileNameDisplay) fileNameDisplay.textContent = 'No file selected';
+                        if(fileInput) fileInput.value = '';
+                        if(scannerContainer) scannerContainer.style.borderColor = '#00ffe7';
+                    });
+                });
+            }
+            const animatedElements = document.querySelectorAll('.fade-in, h2, .step, .card, .stat-card, .data-view-triggers, .output-trigger-area');
+            if (animatedElements.length > 0) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+                }, { threshold: 0.1 });
+                animatedElements.forEach(el => { observer.observe(el); });
+            }
+            if (nav) {
+                const scrollThreshold = 100;
+                window.addEventListener('scroll', function() { nav.classList.toggle('scrolled', window.scrollY > scrollThreshold); });
+            }
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href.startsWith('#') && href !== "#" && window.location.pathname === new URL(this.href).pathname) {
+                        e.preventDefault();
+                        const targetId = href;
+                        const targetElement = document.querySelector(targetId);
+                        if(targetElement) {
+                            const navHeight = nav ? nav.offsetHeight : 0;
+                            const elementPosition = targetElement.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - navHeight - 20;
+                            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                        }
+                    }
+                });
+            });
+            function openDataModal() { if(dataDisplayModal) { dataDisplayModal.style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => { dataDisplayModal.classList.add('modal-active'); }, 10); } }
+            function closeDataModal() { if(dataDisplayModal) { dataDisplayModal.classList.remove('modal-active'); setTimeout(() => { dataDisplayModal.style.display = 'none'; document.body.classList.remove('modal-open'); if(matrixContainer) matrixContainer.style.display = 'none'; }, 400); } }
+            if(viewMatrixBtn) viewMatrixBtn.addEventListener('click', () => { if(modalTitle) modalTitle.textContent = 'Confusion Matrix'; if(matrixContainer) matrixContainer.style.display = 'block'; openDataModal(); });
+            if(closeModalBtn) closeModalBtn.addEventListener('click', closeDataModal);
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    if (dataDisplayModal && dataDisplayModal.classList.contains('modal-active')) closeDataModal();
+                    if (cnnModal && cnnModal.style.display === "block") cnnModal.style.display = "none";
+                }
+            });
+            window.addEventListener('mousemove', (e) => {
+                const { clientX, clientY } = e;
+                const x = (clientX / window.innerWidth) - 0.5;
+                const y = (clientY / window.innerHeight) - 0.5;
+                document.documentElement.style.setProperty('--mouse-x', x);
+                document.documentElement.style.setProperty('--mouse-y', y);
+            });
+
+            let pageLoaded = false;
+            let minimumTimeElapsed = false;
+            const minimumLoaderDuration = 2000;
+            function hideLoaderIfReady() {
+                const loader = document.querySelector('.galaxy-loader');
+                const h1Element = document.querySelector('#home h1');
+                const subtitleElement = document.querySelector('#home .subtitle');
+                if (pageLoaded && minimumTimeElapsed && loader ) {
+                    loader.classList.add('hidden');
+                    setTimeout(() => {
+                        if(loader) loader.style.display = 'none';
+                        if(h1Element) {
+                            h1Element.style.opacity = '0'; h1Element.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                h1Element.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                                h1Element.style.opacity = '1'; h1Element.style.transform = 'translateY(0)';
+                            }, 100);
+                        }
+                        if(subtitleElement) {
+                            subtitleElement.style.opacity = '0'; subtitleElement.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                subtitleElement.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                                subtitleElement.style.opacity = '1'; subtitleElement.style.transform = 'translateY(0)';
+                            }, 300);
+                        }
+                    }, 500);
+                }
+            }
+            window.addEventListener('load', function() { pageLoaded = true; hideLoaderIfReady(); });
+            setTimeout(function() { minimumTimeElapsed = true; hideLoaderIfReady(); }, minimumLoaderDuration);
+        });
+    </script>
+</body>
+</html>

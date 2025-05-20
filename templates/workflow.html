@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Visualization | AI Powered FCD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow-color: #00ffe7;
+            --secondary-glow-color: #ff00ff;
+            --background-color: #0a0a1f; /* Dark blue/purple */
+            --text-color: #e0e0e0;
+            --card-bg-color: rgba(26, 26, 46, 0.8); /* Slightly transparent dark blue */
+            --border-color: rgba(0, 255, 231, 0.5);
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image:
+                linear-gradient(rgba(0, 255, 231, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 231, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px; /* Grid size */
+        }
+
+        header {
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            background-color: rgba(10, 10, 25, 0.8); /* Header bg */
+            border-bottom: 2px solid var(--primary-glow-color);
+            box-shadow: 0 0 15px var(--primary-glow-color);
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: var(--primary-glow-color);
+            text-shadow: 0 0 10px var(--primary-glow-color), 0 0 20px var(--primary-glow-color);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: var(--primary-glow-color);
+            color: var(--background-color);
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: var(--text-color);
+            color: var(--background-color);
+            box-shadow: 0 0 10px var(--primary-glow-color);
+        }
+
+        .workflow-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            max-width: 1300px; /* Adjusted for potentially wider cards or more space */
+            width: 100%;
+        }
+
+        .workflow-step {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            width: calc(33.333% - 40px); /* Adjust for gap, roughly 3 per row */
+            min-width: 300px; /* Minimum width for smaller screens / wrapping */
+            box-shadow: 0 0 10px rgba(0, 255, 231, 0.2), 0 0 20px rgba(255, 0, 255, 0.1) inset;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(5px); /* Glassmorphism effect */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .workflow-step:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 0 20px var(--primary-glow-color), 0 0 30px var(--secondary-glow-color) inset;
+        }
+
+        .workflow-step img {
+            width: 100%;
+            height: 220px; /* Adjusted height for potentially different aspect ratios */
+            object-fit: contain; /* Use 'contain' to see the whole image, or 'cover' to fill */
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0,0,0,0.2); /* Slight background for images that don't fill */
+        }
+
+        .workflow-step .caption {
+            padding: 15px;
+            text-align: center;
+            flex-grow: 1; /* Allows caption to take remaining space */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .workflow-step .caption h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary-glow-color);
+            font-size: 1.2em;
+        }
+
+        .workflow-step .caption p {
+            font-size: 0.9em;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) { /* Adjusted breakpoint */
+            .workflow-step {
+                width: calc(50% - 30px); /* 2 per row */
+            }
+        }
+
+        @media (max-width: 680px) { /* Adjusted breakpoint */
+            header h1 {
+                font-size: 1.8em;
+            }
+            .workflow-step {
+                width: calc(100% - 20px); /* 1 per row */
+                min-width: unset;
+            }
+        }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto; /* Pushes footer to the bottom */
+            font-size: 0.9em;
+            color: rgba(224, 224, 224, 0.7);
+            border-top: 1px solid rgba(0, 255, 231, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Workflow Visualization</h1>
+        <a href="{{ url_for('home') }}" class="back-link">Back to Home</a>
+    </header>
+
+    <div class="workflow-container">
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/preprocessdataset.jpeg') }}" alt="Dataset Preprocessing">
+            <div class="caption">
+                <h3>1. Dataset Preprocessing</h3>
+                <p>Preparing and augmenting the currency image dataset.</p>
+            </div>
+        </div>
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/TRAINCNN.jpeg') }}" alt="CNN Model Training">
+            <div class="caption">
+                <h3>2. CNN Model Training</h3>
+                <p>The architecture and training process of the Convolutional Neural Network.</p>
+            </div>
+        </div>
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/Trains.jpeg') }}" alt="Training Progress Graphs">
+            <div class="caption">
+                <h3>3. Training Progress</h3>
+                <p>Monitoring training and validation accuracy/loss over epochs.</p>
+            </div>
+        </div>
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/processed.jpeg') }}" alt="Processed Image Sample">
+            <div class="caption">
+                <h3>4. Processed Sample</h3>
+                <p>An example of an image after preprocessing steps for the model.</p>
+            </div>
+        </div>
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/Extraction.jpeg') }}" alt="Feature Extraction">
+            <div class="caption">
+                <h3>5. Feature Extraction</h3>
+                <p>Visualization of features learned and extracted by the CNN.</p>
+            </div>
+        </div>
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/matrix.png') }}" alt="Confusion Matrix">
+            <div class="caption">
+                <h3>6. Evaluation: Confusion Matrix</h3>
+                <p>Performance analysis showing true vs. predicted classifications.</p>
+            </div>
+        </div>
+        <div class="workflow-step">
+            <img src="{{ url_for('static', filename='images/graph.png') }}" alt="Performance Graph">
+            <div class="caption">
+                <h3>7. Evaluation: Performance Metrics</h3>
+                <p>Graphical representation of model accuracy and other metrics.</p>
+            </div>
+        </div>
+        
+        </div>
+
+    <footer>
+        <p>&copy; <script>document.write(new Date().getFullYear())</script> AI-Powered Currency Detection. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

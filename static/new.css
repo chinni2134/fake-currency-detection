@@ -1,0 +1,230 @@
+/* static/css/login_specific.css */
+
+html, body.login-page-body {
+    height: 100%; /* Ensure html and body take full height for centering */
+    margin: 0;
+    padding: 0;
+    /* Your existing styles.css will provide background-color and base font-family */
+}
+
+body.login-page-body {
+    display: flex;
+    flex-direction: column; /* Allows footer to be pushed down if not enough content */
+    justify-content: center; /* Vertically centers the direct child (.login-panel-wrapper or .login-panel) */
+    align-items: center;     /* Horizontally centers the direct child */
+    min-height: 100vh;       /* Ensures it takes at least the full viewport height */
+    overflow-y: auto;      /* Allow scroll if content overflows (e.g., on small screens) */
+    padding: 20px;           /* Add some padding around the login panel */
+    box-sizing: border-box;
+}
+
+.login-panel-wrapper { /* Optional: Add a wrapper if you need more control over panel positioning */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.login-panel {
+    background-color: rgba(20, 20, 25, 0.9); /* Slightly more opaque for better readability */
+    backdrop-filter: blur(10px); /* Increased blur */
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.7), 0 0 0 1.5px #00ffe7, 0 0 30px rgba(0, 255, 231, 0.3) inset; /* Enhanced shadow and inner glow */
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    border: 1px solid rgba(0, 255, 231, 0.3); /* Slightly more visible border */
+    position: relative; 
+    z-index: 10;
+    color: #e0faff; /* Default text color for panel content */
+}
+
+.login-panel h1 {
+    font-family: 'Orbitron', sans-serif;
+    color: #00ffe7;
+    font-size: 2.2em; 
+    margin-bottom: 10px; /* Reduced margin */
+    text-shadow: 0 0 10px #00ffe7, 0 0 20px #00ffe7;
+    opacity: 1;
+    transform: scale(1);
+    animation: none;
+}
+
+.login-panel .subtitle {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* More readable for subtitle */
+    font-size: 1.05em; /* Adjusted size */
+    color: #b0cfe0; /* Lighter than #ccc for better contrast on dark bg */
+    margin-bottom: 35px;
+    border-right: none;
+    white-space: normal;
+    overflow: visible;
+    max-width: none;
+    animation: none;
+    line-height: 1.5;
+}
+
+.login-panel .form-group {
+    margin-bottom: 22px; /* Slightly adjusted */
+    text-align: left;
+}
+
+.login-panel .form-group label {
+    display: block;
+    font-size: 0.85em; 
+    font-weight: 500; /* Slightly bolder */
+    margin-bottom: 8px;
+    color: #00c9d4; /* Brighter label color */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.login-panel .form-group input[type="text"],
+.login-panel .form-group input[type="password"] { /* More specific selectors */
+    width: 100%;
+    padding: 12px 15px; /* Adjusted padding */
+    background-color: rgba(10, 20, 30, 0.85); /* Darker, more integrated bg */
+    border: 1px solid #005f73; /* Teal border */
+    border-radius: 6px; /* Slightly less rounded */
+    box-sizing: border-box;
+    font-size: 1em;
+    color: #e6f1ff;
+    font-family: 'Roboto', 'Segoe UI', sans-serif; /* Clear font for input */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.login-panel .form-group input::placeholder {
+    color: #6a7f8c; /* Muted placeholder */
+    opacity: 1; /* Ensure placeholder is visible */
+}
+
+.login-panel .form-group input[type="text"]:focus,
+.login-panel .form-group input[type="password"]:focus {
+    outline: none;
+    border-color: #00ffe7;
+    background-color: rgba(15, 30, 45, 0.9); /* Slightly lighter on focus */
+    box-shadow: 0 0 15px rgba(0, 255, 231, 0.5), inset 0 0 8px rgba(0,255,231,0.2);
+}
+
+/* Ensure this button uses your main .btn styles or define fully here */
+.login-panel button.login-button.btn { /* Highly specific selector */
+    width: 100%;
+    margin-top: 20px; /* More space before button */
+    padding: 12px 15px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* These will be inherited from your .btn class in styles.css: */
+    /* background-color: #00ffe7; */
+    /* color: black; */
+    /* border: none; */
+    /* border-radius: 30px; */
+    /* cursor: pointer; */
+    /* text-decoration: none; */
+    /* transition: all 0.3s ease-in-out; */
+    /* box-shadow: 0 0 10px #00ffe7; */
+}
+
+.login-panel .login-options {
+    margin-top: 25px;
+    font-size: 0.85em;
+}
+
+.login-panel .login-options a {
+    color: #00b8d4; /* Slightly different shade for secondary links */
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.login-panel .login-options a:hover {
+    color: #00ffe7;
+    text-shadow: 0 0 8px #00ffe7;
+    text-decoration: underline;
+}
+
+/* Flashed Messages Styling */
+.flashed-messages-container {
+    position: fixed; /* Keeps it at the top regardless of scroll */
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001; /* Highest z-index */
+    width: auto;    /* Fit content */
+    min-width: 300px; /* Minimum width */
+    max-width: 90%;   /* Max width */
+}
+
+.flashed-messages-container .alert {
+    padding: 15px 25px; /* More padding */
+    margin-bottom: 15px;
+    border-radius: 8px; /* More rounded */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.95em;
+    font-weight: 500; /* Slightly bolder text */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-30px);
+    animation: fadeInSlideDown 0.6s ease-out forwards;
+    text-align: center; /* Center text in alert */
+    border-left-width: 5px; /* Add a thicker left border for emphasis */
+    border-left-style: solid;
+}
+
+@keyframes fadeInSlideDownFlashed { /* Renamed to avoid conflict if you have similar */
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* Ensure the animation name matches if you changed it */
+.flashed-messages-container .alert {
+    animation-name: fadeInSlideDownFlashed; /* Use a distinct name if needed */
+}
+
+
+.flashed-messages-container .alert-success { background-color: rgba(40, 167, 69, 0.92); border-color: #1e7e34; color: #fff; }
+.flashed-messages-container .alert-danger  { background-color: rgba(220, 53, 69, 0.92); border-color: #b21f2d; color: #fff; }
+.flashed-messages-container .alert-info    { background-color: rgba(23, 162, 184, 0.92); border-color: #117a8b; color: #fff; }
+.flashed-messages-container .alert-warning { background-color: rgba(255, 193, 7, 0.92); border-color: #d39e00; color: #212529; }
+
+
+footer.login-footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    background-color: #0a0a0a;
+    border-top: 1px solid #00ffe730;
+    z-index: 10;
+    margin-top: auto; /* Helps push to bottom in flex column */
+    position: relative; /* Changed from fixed to allow body to control it */
+}
+
+footer.login-footer p {
+    color: #888;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+footer.login-footer .footer-links a {
+    color: #aaa;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 0.9em;
+}
+
+footer.login-footer .footer-links a:hover {
+    color: #00ffe7;
+}
+
+.login-panel.fade-in {
+    opacity: 0;
+    transition: opacity 0.8s ease-out 0.2s;
+}
+
+.login-panel.fade-in.visible {
+    opacity: 1;
+}
